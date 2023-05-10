@@ -1,47 +1,42 @@
 import hashlib
+import maskpass
 
-PASSWORD_FILE = "passwords.txt"
+# identifiant = input("Identifiant : ")
 
-def hash_password(password):
-    return hashlib.sha256(password).hexdigest()
+special_char = "!@#$%^&*"
+test = 0
 
-def add_password():
+mot_de_passe = maskpass.askpass(prompt="Password: ", mask="*")
 
-    website = input("Site Web: ")
-    username = input("Nom d'utilisateur: ")
-    password = input("Mot de passe: ")
-    hashed_password = hash_password(password)
-    
-    with open(PASSWORD_FILE, 'a') as f:
-        f.write(f"{website} {username} {hashed_password}\n")
-    
-    print("Mot de passe ajouté avec succès.")
+while test == 0:
 
-def list_passwords():
-    try:
-        with open(PASSWORD_FILE, 'r') as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        print("Aucun mot de passe enregistré.")
-        return
-    
-    for line in lines:
-        website, username, hashed_password = line.strip().split()
-        print(f"{website}: {username} - {hashed_password}")
-
-# Programme principal
-while True:
-    print("Que souhaitez-vous faire ?")
-    print("1. Ajouter un nouveau mot de passe")
-    print("2. Afficher les mots de passe enregistrés")
-    print("3. Quitter")
-    choix = input("Entrez votre choix (1/2/3): ")
-    
-    if choix == "1":
-        add_password()
-    elif choix == "2":
-        list_passwords()
-    elif choix == "3":
-        break
+    if len(mot_de_passe) < 8: # test si longueur > à 8 caractères
+        print("Trop court, 8 caractère minimum !")
+        continue
+    if not any(char.isupper() for char in mot_de_passe): # test si au moins 1 caractère en Majuscule
+        print("Il faut au moins une Majuscule")
+        continue
+    if not any(char.islower() for char in mot_de_passe): # test si au moins 1 caractère en minuscule
+        print("Il faut au moins une minuscule")
+        continue
+    if not any(char.isdigit() for char in mot_de_passe): # test si au moins 1 caractère numérique
+        print("Il faut au moins un caractère numérique")
+        continue
+    if not any(char in special_char for char in mot_de_passe): # test si au moins un caractère spécial
+        print("Il faut au moins un caractère spécial : ! @ # $ % ^ & *")
+        continue
     else:
-        print("Choix invalide.")
+        #print("Mot de passe valide\n")
+        test=1
+          
+hashed_password = hashlib.sha256(mot_de_passe.encode("utf-8")).hexdigest()
+
+with open("Desktop/git/runtrack-python/password/myfile.txt", "r") as file:
+    for i in file.readlines():
+        if i.rstrip("\n") == hashed_password:
+            print("Ce mot de passe éxiste déjà, veuillez en saisir un autre !!")
+            break
+    with open("Desktop/git/runtrack-python/password/myfile.txt", "a") as file:
+        file.write(f"{hashed_password}\n")
+
+print("\tfin !!\n")
